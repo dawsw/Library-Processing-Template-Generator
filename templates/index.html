@@ -9,14 +9,10 @@
 </head>
 <body class="flex-centered column">
     <header class="flex-centered header">
-        <h1 style="font-size: 2rem;">Processing Template Generator</h1>
+        <h1 style="font-size: 2rem;">Library Processing Template Generator</h1>
     </header>
     <div class="flex-centered column book-images">
-        <img src="static/cover.png" class="bookImage">
-        <div class="flex-centered">
-            <img src="static/frontcover.png" class="bookImage">
-            <img src="static/backcover.png" class="bookImage">
-        </div>
+        <img src="static/booksDiagram.png" class="bookImage">
     </div>
     <form id="fullForm" action="/" method="POST" enctype="multipart/form-data">
         <div class="flex-centered column table-section">
@@ -51,8 +47,8 @@
                         <select id="location" name="location" required>
                             <option value="" selected disabled hidden>Select a location</option>
                             <optgroup label="Spine"></optgroup>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
+                            <option value="1 (Standard Spine)">1 (Standard Spine)</option>
+                            <option value="2 (Standard A/R)">2 (Standard A/R)</option>
                             <option value="5">5</option>
                             <optgroup label="Front Cover"></optgroup>
                             <option value="A">A</option>
@@ -110,7 +106,7 @@
             </div>
             <div class="flex column images-download-section">
                 <div>
-                    <h4>Add additional images:</h4>
+                    <h4>Add additional image(s):</h4>
                     <input type="file" name="images" multiple>
                 </div>
                 <button id="download-button" type="submit">Download Template</button>
