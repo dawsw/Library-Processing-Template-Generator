@@ -3,28 +3,24 @@ function addLabel() {
 
     const newRow = document.createElement("tr");
     newRow.innerHTML = `
-        <td class="item">
-            <select id="label" name="label">
-                <option value="select" selected disabled hidden>Select a label</option>
-                <optgroup label="Barcode">
-                    <option value="barcode-with-protector-attached">Barcode with Protector Attached</option>
-                    <option value="barcode-attached">Barcode Attached</option>
-                    <option value="barcode-unattached">Barcode Unattached</option>
-                </optgroup>
-                <optgroup label="Spine">
-                    <option value="spine-label-attached">Spine Label Attached</option>
-                    <option value="spine-label-unattached">Spine Label Unattached</option>
-                </optgroup>
-                <optgroup label="AR">
-                    <option value="smallAR-label-attached">Small AR Label Attached</option>
-                    <option value="smallAR-label-unattached">Small AR Label Unattached</option>
-                    <option value="largeAR-label-attached">Large AR Label Attached</option>
-                    <option value="largeAR-label-unattached">Large AR Label Unattached</option>
-                </optgroup>
-                <optgroup label="Lexile">
-                    <option value="spine-label-attached">Spine Label Attached</option>
-                    <option value="spine-label-unattached">Spine Label Unattached</option>
-                </optgroup>
+       <td class="item">
+            <select id="label" name="label" required>
+                <option value="" selected disabled hidden>Select a label</option>
+                <optgroup label="Barcode"></optgroup>
+                <option value="Barcode with Protector Attached">Barcode with Protector Attached</option>
+                <option value="Barcode Attached">Barcode Attached</option>
+                <option value="Barcode Unattached">Barcode Unattached</option>
+                <optgroup label="Spine"></optgroup>
+                <option value="Spine Label Attached">Spine Label Attached</option>
+                <option value="Spine Label Unattached">Spine Label Unattached</option>
+                <optgroup label="AR"></optgroup>
+                <option value="Small AR Label Attached">Small AR Label Attached</option>
+                <option value="Small AR Label Unattached">Small AR Label Unattached</option>
+                <option value="Large AR Label Attached">Large AR Label Attached</option>
+                <option value="Large AR Label Unattached">Large AR Label Unattached</option>
+                <optgroup label="Lexile"></optgroup>
+                <option value="Lexile Label Attached">Lexile Label Attached</option>
+                <option value="Lexile Label Unattached">Lexile Label Unattached</option>
             </select>
         </td>
         <td class="item">
@@ -69,11 +65,11 @@ function addLabel() {
             </select>
         </td>
         <td class="item">
-            <select id="direction" name="direction">
-                <option value="select" selected disabled hidden>Select a direction</option>
-                <option value="horizontal">Horizontal</option>
-                <option value="top-to-bottom">Vertical (Top to Bottom)</option>
-                <option value="bottom-to-top">Vertical (Bottom to Top)</option>
+            <select id="direction" name="direction" required>
+                <option value="" selected disabled hidden>Select a direction</option>
+                <option value="Horizontal">Horizontal</option>
+                <option value="Vertical (Top to Bottom)">Vertical (Top to Bottom)</option>
+                <option value="Vertical (Bottom to Top)">Vertical (Bottom to Top)</option>
             </select>
         </td>
         <td>
