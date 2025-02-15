@@ -1,3 +1,5 @@
+import os
+from io import BytesIO
 from reportlab.lib import colors
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.pagesizes import LETTER
@@ -17,7 +19,7 @@ def createLabelTable(labelList, locationList, directionList):
         fontName="Helvetica",
         fontSize=10,
         textColor=colors.black,
-        alignment=1, #centered text 
+        alignment=0, #centered text 
         leading=12 
     )
 
@@ -31,27 +33,39 @@ def createLabelTable(labelList, locationList, directionList):
         ])
 
     #create data for table
-    table_data = labelHeaders + labels[1:]
+    table_data = labelHeaders + labels
 
     #create table for labels
     table = Table(table_data, colWidths=[150, 150, 150])
 
     table.setStyle(TableStyle([
         #header styling
-        ('BACKGROUND', (0, 0), (-1, 0), colors.white),  # Header background
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Header text color
-        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.white), 
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, 0), 'LEFT'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('TOPPADDING', (0, 0), (-1, 0), 50),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 5),
 
         #data styling
-        ('GRID', (0, 1), (-1, -1), 1, colors.black),  # Apply grid only to data rows
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),  # Data row background color
+        ('GRID', (0, 1), (-1, -1), 1, colors.black),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white), 
         ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 1), (-1, -1), 'MIDDLE'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-        ('TOPPADDING', (0, 0), (-1, 0), 8),
         ('WORDWRAP', (0, 0), (-1, -1), True)
     ]))
 
     return table
+
+
+def getImagePaths(imageList):
+    image_paths = []
+
+    temp_image_dir = "temp"
+    os.makedirs(temp_image_dir, exist_ok=True)
+
+    for image in imageList:
+        file_path = os.path.join(temp_image_dir, image.filename)
+        image.save(file_path)
+        image_paths.append(file_path)
+
+    return image_paths
