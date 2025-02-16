@@ -15,14 +15,18 @@ def generatePDF(labelList, locationList, directionList, notes, imageList):
     #create canvas for PDF (612.0px, 792.0px) or (8.5in, 11in)
     PAGE_WIDTH, PAGE_HEIGHT = LETTER
     canvas = Canvas(pdf_buffer, pagesize=LETTER)
-    canvas.setFont("Helvetica-Bold", 24)
-    canvas.drawString(150, 10.2 * inch, "Library Processing Template:")
-
+    canvas.setFont("Helvetica", 20)
+    canvas.setFillColorRGB(0.9, 0.9, 0.9)
+    
     #header border (x, y, width, height)
-    canvas.rect(50, PAGE_HEIGHT - 75, PAGE_WIDTH - 100, 50)
+    canvas.setLineWidth(2) 
+    canvas.rect(81, PAGE_HEIGHT - 60, PAGE_WIDTH - 162, 40)
+
+    canvas.setFillColor(colors.black)
+    canvas.drawString(180, 10.35 * inch, "Library Processing Template")
 
     #book diagram image
-    canvas.drawImage("static/booksDiagram.png", (PAGE_WIDTH - 512) / 2, PAGE_HEIGHT - 370, width = PAGE_WIDTH - 100, height=250)
+    canvas.drawImage("static/books_nonbold.png", (PAGE_WIDTH - 512) / 2, PAGE_HEIGHT - 340, width = PAGE_WIDTH - 100, height=250)
 
     #create table
     table = createLabelTable(labelList, locationList, directionList)
@@ -30,31 +34,91 @@ def generatePDF(labelList, locationList, directionList, notes, imageList):
     table_width, table_height = table.wrapOn(canvas, PAGE_WIDTH, PAGE_HEIGHT)
 
     #draw table on canvas (canvas, x, y)
-    table.drawOn(canvas, (PAGE_WIDTH - 450) / 2, (PAGE_HEIGHT - 425) - table_height)
+    table.drawOn(canvas, (PAGE_WIDTH - 450) / 2, (PAGE_HEIGHT - 385) - table_height)
 
-    #get image paths
-    image_paths = getImagePaths(imageList)
+    table_y = (PAGE_HEIGHT - 385) - table_height
+    note_y = table_y - 58
+
+    #notes rectangle
+    canvas.setFillColor(colors.lightgrey)
+    canvas.rect(81, table_y - 60, 40, 20, stroke=0, fill=1)
+
+    canvas.setFont("Helvetica-Bold", 10)
+    canvas.setFillColor(colors.black)
+    canvas.drawString(86, note_y + 5, "Notes:")
     
-    for image_path in image_paths:
+    #notes
+    notes_y_position = note_y - 20  # Start below the top margin
+    line_height = 10  # Space between lines
+    notes_left_margin = 81  # Left margin
+    notes_right_margin = 0  # Right margin
+    usable_width = PAGE_WIDTH - notes_left_margin - notes_right_margin + 10
+
+    paragraphs = notes.split("\n")
+
+    canvas.setFont("Helvetica", 10)
+    for paragraph in paragraphs:
+        if paragraph.strip() == "":  # Handle blank lines
+            notes_y_position -= line_height  # Add spacing for blank lines
+        else:
+            words = paragraph.split()
+            line = ""
+
+            for word in words:
+                if canvas.stringWidth(line + " " + word, "Helvetica", 12) < usable_width:
+                    line += " " + word
+                else:
+                    # Check if we need a new page before writing text
+                    if notes_y_position < 50:  # Bottom margin reached
+                        canvas.showPage()
+                        canvas.setFont("Helvetica", 10)  # Reset font after new page
+                        notes_y_position = PAGE_HEIGHT - 50  # Reset position for new page
+
+                    # Draw text and update Y position
+                    canvas.drawString(notes_left_margin, notes_y_position, line.strip())
+                    notes_y_position -= line_height
+                    line = word  # Start new line
+
+            # Draw the last line of the paragraph
+            if line:
+                if notes_y_position < 50:  # Check again before drawing the last line
+                    canvas.showPage()
+                    canvas.setFont("Helvetica", 10)
+                    notes_y_position = PAGE_HEIGHT - 50
+
+                canvas.drawString(notes_left_margin, notes_y_position, line.strip())
+                notes_y_position -= line_height  # Move down after paragraph
+
+    
+
+
+
+
+    #if user uploaded images
+    if imageList != '':
+        #get image paths
+        image_paths = getImagePaths(imageList)
         
-        #move to new page
-        canvas.showPage()
+        for image_path in image_paths:
+            
+            #move to new page
+            canvas.showPage()
 
-        #get image original dimensions
-        with Image.open(image_path) as img:
-            img_width, img_height = img.size
+            #get image original dimensions
+            with Image.open(image_path) as img:
+                img_width, img_height = img.size
 
-        #scale image if it is too large
-        scaling_factor = min(PAGE_WIDTH / img_width, PAGE_HEIGHT / img_height)
-        new_img_width = img_width * scaling_factor
-        new_img_height = img_height * scaling_factor
-        
-        #add image to PDF
-        canvas.drawImage(image_path, (PAGE_WIDTH - new_img_width) / 2, (PAGE_HEIGHT - new_img_height) / 2, width=new_img_width, height=new_img_height)   
+            #scale image if it is too large
+            scaling_factor = min(PAGE_WIDTH / img_width, PAGE_HEIGHT / img_height)
+            new_img_width = img_width * scaling_factor
+            new_img_height = img_height * scaling_factor
+            
+            #add image to PDF
+            canvas.drawImage(image_path, (PAGE_WIDTH - new_img_width) / 2, (PAGE_HEIGHT - new_img_height) / 2, width=new_img_width, height=new_img_height)   
 
-    #remove images after inserting in PDF
-    for image_path in image_paths:
-        os.remove(image_path)
+        #remove images after inserting in PDF
+        for image_path in image_paths:
+            os.remove(image_path)
 
     #save and close PDF
     canvas.save()
@@ -73,7 +137,7 @@ def createLabelTable(labelList, locationList, directionList):
         fontName="Helvetica",
         fontSize=10,
         textColor=colors.black,
-        alignment=0, #centered text 
+        alignment=1, #centered text 
         leading=12 
     )
 
@@ -94,9 +158,9 @@ def createLabelTable(labelList, locationList, directionList):
 
     table.setStyle(TableStyle([
         #header styling
-        ('BACKGROUND', (0, 0), (-1, 0), colors.white), 
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey), 
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-        ('ALIGN', (0, 0), (-1, 0), 'LEFT'),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 5),
 
