@@ -89,11 +89,6 @@ def generatePDF(labelList, locationList, directionList, notes, imageList):
                 canvas.drawString(notes_left_margin, notes_y_position, line.strip())
                 notes_y_position -= line_height  # Move down after paragraph
 
-    
-
-
-
-
     #if user uploaded images
     if imageList != '':
         #get image paths
@@ -126,6 +121,10 @@ def generatePDF(labelList, locationList, directionList, notes, imageList):
     pdf_buffer.seek(0)
 
     return pdf_buffer
+
+
+
+
 
 def createLabelTable(labelList, locationList, directionList):
     labels = []
@@ -175,6 +174,7 @@ def createLabelTable(labelList, locationList, directionList):
     return table
 
 
+
 def getImagePaths(imageList):
     image_paths = []
 
@@ -187,4 +187,113 @@ def getImagePaths(imageList):
         image_paths.append(file_path)
 
     return image_paths
+
+
+def createLabelImages(labelList, directionList):
+    images = []
+
+    temp_image_dir = "tempLabels"
+    os.makedirs(temp_image_dir, exist_ok=True)
+
+    labelNumber = 1
+
+    for label in range(len(labelList)):
+
+        #Barcode label
+        if "Barcode" in labelList[label] and "Unattached" not in labelList[label]:
+            image_filename = f"BARCODE{labelNumber}.png"
+            image = Image.open(os.path.join('static', 'BARCODE.png'))
+
+            if "Top to Bottom" in directionList[label]:
+                image = image.rotate(-90, expand=True)
+                image = image.resize((25, 60))
+            elif "Bottom to Top" in directionList[label]:
+                image = image.rotate(90, expand=True)
+                image = image.resize((25, 60))
+            elif "Horizontal" in directionList[label]:
+                image = image.resize((60, 25))
+
+            file_path = os.path.join(temp_image_dir, image_filename)
+            image.save(file_path)
+            images.append(file_path)
+
+        #Spine label
+        elif "Spine" in labelList[label] and "Unattached" not in labelList[label]:
+            image_filename = f"SPINE{labelNumber}.png"
+            image = Image.open(os.path.join('static', 'SPINE.png'))
+
+            if "Top to Bottom" in directionList[label]:
+                image = image.rotate(-90, expand=True)
+                image = image.resize((35, 50))
+            elif "Bottom to Top" in directionList[label]:
+                image = image.rotate(90, expand=True)
+                image = image.resize((35, 50))
+            elif "Horizontal" in directionList[label]:
+                image = image.resize((50, 35))
+
+            file_path = os.path.join(temp_image_dir, image_filename)
+            image.save(file_path)
+            images.append(file_path)
+
+        #Small AR label
+        elif "Small AR" in labelList[label] and "Unattached" not in labelList[label]:
+            image_filename = f"SMALLAR{labelNumber}.png"
+            image = Image.open(os.path.join('static', 'SMALLAR.png'))
+
+            if "Top to Bottom" in directionList[label]:
+                image = image.rotate(-90, expand=True)
+                image = image.resize((35, 50))
+            elif "Bottom to Top" in directionList[label]:
+                image = image.rotate(90, expand=True)
+                image = image.resize((35, 50))
+            elif "Horizontal" in directionList[label]:
+                image = image.resize((50, 35))
+
+            file_path = os.path.join(temp_image_dir, image_filename)
+            image.save(file_path)
+            images.append(file_path)
+
+        #Lexile label
+        elif "Lexile" in labelList[label] and "Unattached" not in labelList[label]:
+            image_filename = f"LEXILE{labelNumber}.png"
+            image = Image.open(os.path.join('static', 'LEXILE.png'))
+
+            if "Top to Bottom" in directionList[label]:
+                image = image.rotate(-90, expand=True)
+                image = image.resize((35, 50))
+            elif "Bottom to Top" in directionList[label]:
+                image = image.rotate(90, expand=True)
+                image = image.resize((35, 50))
+            elif "Horizontal" in directionList[label]:
+                image = image.resize((50, 35))
+
+            file_path = os.path.join(temp_image_dir, image_filename)
+            image.save(file_path)
+            images.append(file_path)
+
+        #Large AR label
+        elif "Large AR" in labelList[label] and "Unattached" not in labelList[label]:
+            image_filename = f"LARGEAR{labelNumber}.png"
+            image = Image.open(os.path.join('static', 'LARGEAR.png'))
+
+            if "Top to Bottom" in directionList[label]:
+                image = image.rotate(-90, expand=True)
+                image = image.resize((50, 65))
+            elif "Bottom to Top" in directionList[label]:
+                image = image.rotate(90, expand=True)
+                image = image.resize((50, 65))
+            elif "Horizontal" in directionList[label]:
+                image = image.resize((65, 50))
+
+            file_path = os.path.join(temp_image_dir, image_filename)
+            image.save(file_path)
+            images.append(file_path)
+        
+        labelNumber += 1
+        
+
+    return images
     
+
+
+
