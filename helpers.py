@@ -11,10 +11,12 @@ from PIL import Image
 def generatePDF(labelList, locationList, directionList, notes, imageList):
 
     pdf_buffer = BytesIO()
+    
 
     #create canvas for PDF (612.0px, 792.0px) or (8.5in, 11in)
     PAGE_WIDTH, PAGE_HEIGHT = LETTER
     canvas = Canvas(pdf_buffer, pagesize=LETTER)
+    canvas.setTitle('')
     canvas.setFont("Helvetica", 20)
     canvas.setFillColorRGB(0.9, 0.9, 0.9)
     
@@ -257,7 +259,7 @@ def createLabelTable(labelList, locationList, directionList):
 def getImagePaths(imageList):
     image_paths = []
 
-    temp_image_dir = "temp"
+    temp_image_dir = "temp-images"
     os.makedirs(temp_image_dir, exist_ok=True)
 
     for image in imageList:
@@ -267,7 +269,7 @@ def getImagePaths(imageList):
 
     return image_paths
 
-
+#create a list of image paths for each label
 def createLabelImages(attachedLabels):
     images = []
 
