@@ -13,11 +13,11 @@ function addLabel() {
                 <optgroup label="Spine"></optgroup>
                 <option value="Spine Label Attached">Spine Label Attached</option>
                 <option value="Spine Label Unattached">Spine Label Unattached</option>
-                <optgroup label="AR"></optgroup>
-                <option value="Small AR Label Attached">Small AR Label Attached</option>
-                <option value="Small AR Label Unattached">Small AR Label Unattached</option>
-                <option value="Large AR Label Attached">Large AR Label Attached</option>
-                <option value="Large AR Label Unattached">Large AR Label Unattached</option>
+                <optgroup label="A/R"></optgroup>
+                <option value="Small A/R Label Attached">Small A/R Label Attached</option>
+                <option value="Small A/R Label Unattached">Small A/R Label Unattached</option>
+                <option value="Large A/R Label Attached">Large A/R Label Attached</option>
+                <option value="Large A/R Label Unattached">Large A/R Label Unattached</option>
                 <optgroup label="Lexile"></optgroup>
                 <option value="Lexile Label Attached">Lexile Label Attached</option>
                 <option value="Lexile Label Unattached">Lexile Label Unattached</option>
@@ -27,8 +27,8 @@ function addLabel() {
             <select id="location" name="location">
                 <option value="select" selected disabled hidden>Select a location</option>
                 <optgroup label="Spine"></optgroup>
-                <option value="1">1</option>
-                <option value="2">2</option>
+                <option value="1 (Standard Spine)">1 (Standard Spine)</option>
+                <option value="2 (Standard A/R)">2 (Standard A/R)</option>
                 <option value="5">5</option>
                 <optgroup label="Front Cover"></optgroup>
                 <option value="A">A</option>
@@ -93,9 +93,12 @@ function removeRow(event) {
     }
 }
 
-// reset each select to its first option if refreshed
+ //reset selects and inputs when refreshed
 window.onload = function () {
     document.querySelectorAll("select").forEach(select => {
         select.selectedIndex = 0; 
     });
-};
+
+    const myForm = document.getElementById('fullForm');
+        fullForm.reset(); 
+}; 
