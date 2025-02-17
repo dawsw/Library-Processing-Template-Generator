@@ -93,6 +93,12 @@ function removeRow(event) {
     }
 }
 
+function deleteFileInput() {
+    let input = document.getElementById('fileInput');
+    input.value = '';
+}
+
+
  //reset selects and inputs when refreshed
 window.onload = function () {
     document.querySelectorAll("select").forEach(select => {
