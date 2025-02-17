@@ -9,7 +9,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from PIL import Image
 
 def generatePDF(labelList, locationList, directionList, notes, imageList):
-        
+
     pdf_buffer = BytesIO()
 
     #create canvas for PDF (612.0px, 792.0px) or (8.5in, 11in)
@@ -25,10 +25,47 @@ def generatePDF(labelList, locationList, directionList, notes, imageList):
     canvas.setFillColor(colors.black)
     canvas.drawString(180, 10.35 * inch, "Library Processing Template")
 
-    #book diagram image
+    #place book diagram image on PDF
     canvas.drawImage("static/books_nonbold.png", (PAGE_WIDTH - 512) / 2, PAGE_HEIGHT - 340, width = PAGE_WIDTH - 100, height=250)
 
-    #create table
+
+    ### LABEL IMAGES ###
+    attachedLabels = []
+
+    #create a list of attached labels with {name, location, direction}
+    for label in range(len(labelList)):
+        if "Unattached" not in labelList[label]:
+            attachedLabels.append({'name': labelList[label], 'location': locationList[label], 'direction': directionList[label]})
+
+
+    #get all label image paths
+    labelImagePaths = createLabelImages(attachedLabels)
+
+    #get list of label coords
+    labelCoords = getLabelImageCoordinates(attachedLabels)
+
+    for label in range(len(attachedLabels)):
+        image_path = labelImagePaths[label]
+
+        # skip if label is unattached
+        if image_path == '':
+            continue
+
+        #get x and y for label on canvas
+        image_x = labelCoords[label][0]
+        image_y = labelCoords[label][1]
+
+        with Image.open(image_path) as img:
+                img_width, img_height = img.size
+        
+        canvas.drawImage(image_path, image_x, image_y, width=img_width, height=img_height)
+
+    #remove all templabel images
+    for image in os.listdir('temp-labels'):
+        os.remove('temp-labels/'+ image)
+   
+   
+    ### TABLE ###
     table = createLabelTable(labelList, locationList, directionList)
     
     table_width, table_height = table.wrapOn(canvas, PAGE_WIDTH, PAGE_HEIGHT)
@@ -39,7 +76,7 @@ def generatePDF(labelList, locationList, directionList, notes, imageList):
     table_y = (PAGE_HEIGHT - 385) - table_height
     note_y = table_y - 58
 
-    #notes rectangle
+    ### NOTES ###
     canvas.setFillColor(colors.lightgrey)
     canvas.rect(81, table_y - 60, 40, 20, stroke=0, fill=1)
 
@@ -47,7 +84,8 @@ def generatePDF(labelList, locationList, directionList, notes, imageList):
     canvas.setFillColor(colors.black)
     canvas.drawString(86, note_y + 5, "Notes:")
     
-    #notes
+
+    ### NOTES TEXT ###
     notes_y_position = note_y - 20  # Start below the top margin
     line_height = 10  # Space between lines
     notes_left_margin = 81  # Left margin
@@ -58,7 +96,7 @@ def generatePDF(labelList, locationList, directionList, notes, imageList):
 
     canvas.setFont("Helvetica", 10)
     for paragraph in paragraphs:
-        if paragraph.strip() == "":  # Handle blank lines
+        if paragraph.strip() == "":  #handle blank lines
             notes_y_position -= line_height  # Add spacing for blank lines
         else:
             words = paragraph.split()
@@ -79,23 +117,24 @@ def generatePDF(labelList, locationList, directionList, notes, imageList):
                     notes_y_position -= line_height
                     line = word  # Start new line
 
-            # Draw the last line of the paragraph
+            #draw the last line of the paragraph
             if line:
-                if notes_y_position < 50:  # Check again before drawing the last line
+                if notes_y_position < 50:  #check again before drawing the last line
                     canvas.showPage()
                     canvas.setFont("Helvetica", 10)
                     notes_y_position = PAGE_HEIGHT - 50
 
                 canvas.drawString(notes_left_margin, notes_y_position, line.strip())
-                notes_y_position -= line_height  # Move down after paragraph
+                notes_y_position -= line_height  #move down after paragraph
 
-    #if user uploaded images
+
+    ### USER-UPLOADED IMAGES ###
     if imageList != '':
         #get image paths
         image_paths = getImagePaths(imageList)
         
         for image_path in image_paths:
-            
+
             #move to new page
             canvas.showPage()
 
@@ -123,6 +162,46 @@ def generatePDF(labelList, locationList, directionList, notes, imageList):
     return pdf_buffer
 
 
+
+
+def getLabelImageCoordinates(labels):
+    label_XY_List = []
+
+    for label in labels:      
+        #Vertical Spine/AR/Lexile
+        if ('Spine' in label['name'] or 'Lexile' in label['name'] or 'Small A/R' in label['name']) and 'Vertical' in label['direction']:
+            location = label['location']
+            if location in vertical_spine_ar_lexiles_coords:
+                label_XY_List.append(vertical_spine_ar_lexiles_coords[location])
+
+        #Vertical Barcode
+        elif 'Barcode' in label['name'] and 'Vertical' in label['direction']:
+            location = label['location']
+            if location in vertical_barcodes_coords:
+                label_XY_List.append(vertical_barcodes_coords[location])
+
+        #Horizontal Spine/AR/Lexile
+        elif ('Spine' in label['name'] or 'Lexile' in label['name'] or 'Small A/R' in label['name']) and 'Horizontal' in label['direction']:
+            location = label['location']
+            if location in horizontal_spine_ar_lexiles_coords:
+                label_XY_List.append(horizontal_spine_ar_lexiles_coords[location])
+
+        #Horizontal Barcode
+        elif 'Barcode' in label['name'] and 'Horizontal' in label['direction']:
+            location = label['location']
+            print(location)
+            if location in horizontal_barcodes_coords:
+                label_XY_List.append(horizontal_barcodes_coords[location])
+
+        #Large AR
+        elif 'Large A/R' in label['name']:
+            location = label['location']
+            if location in large_ar_coords:
+                label_XY_List.append(large_ar_coords[location])
+        
+
+    print(label_XY_List)
+    return label_XY_List
 
 
 
@@ -189,111 +268,142 @@ def getImagePaths(imageList):
     return image_paths
 
 
-def createLabelImages(labelList, directionList):
+def createLabelImages(attachedLabels):
     images = []
 
-    temp_image_dir = "tempLabels"
+    temp_image_dir = "temp-labels"
     os.makedirs(temp_image_dir, exist_ok=True)
 
     labelNumber = 1
 
-    for label in range(len(labelList)):
+    for label in attachedLabels:
 
         #Barcode label
-        if "Barcode" in labelList[label] and "Unattached" not in labelList[label]:
+        if "Barcode" in label['name']:
             image_filename = f"BARCODE{labelNumber}.png"
             image = Image.open(os.path.join('static', 'BARCODE.png'))
-
-            if "Top to Bottom" in directionList[label]:
+            image = image.resize((35, 15))
+            if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
-                image = image.resize((25, 60))
-            elif "Bottom to Top" in directionList[label]:
+            elif "Bottom to Top" in label['direction']:
                 image = image.rotate(90, expand=True)
-                image = image.resize((25, 60))
-            elif "Horizontal" in directionList[label]:
-                image = image.resize((60, 25))
 
             file_path = os.path.join(temp_image_dir, image_filename)
             image.save(file_path)
             images.append(file_path)
 
         #Spine label
-        elif "Spine" in labelList[label] and "Unattached" not in labelList[label]:
+        elif "Spine" in label['name']:
             image_filename = f"SPINE{labelNumber}.png"
             image = Image.open(os.path.join('static', 'SPINE.png'))
-
-            if "Top to Bottom" in directionList[label]:
+            image = image.resize((26, 15))
+            if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
-                image = image.resize((35, 50))
-            elif "Bottom to Top" in directionList[label]:
+            elif "Bottom to Top" in label['direction']:
                 image = image.rotate(90, expand=True)
-                image = image.resize((35, 50))
-            elif "Horizontal" in directionList[label]:
-                image = image.resize((50, 35))
 
             file_path = os.path.join(temp_image_dir, image_filename)
             image.save(file_path)
             images.append(file_path)
 
         #Small AR label
-        elif "Small AR" in labelList[label] and "Unattached" not in labelList[label]:
+        elif "Small A/R" in label['name']:
             image_filename = f"SMALLAR{labelNumber}.png"
             image = Image.open(os.path.join('static', 'SMALLAR.png'))
-
-            if "Top to Bottom" in directionList[label]:
+            image = image.resize((26, 15))
+            if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
-                image = image.resize((35, 50))
-            elif "Bottom to Top" in directionList[label]:
+            elif "Bottom to Top" in label['direction']:
                 image = image.rotate(90, expand=True)
-                image = image.resize((35, 50))
-            elif "Horizontal" in directionList[label]:
-                image = image.resize((50, 35))
 
             file_path = os.path.join(temp_image_dir, image_filename)
             image.save(file_path)
             images.append(file_path)
 
         #Lexile label
-        elif "Lexile" in labelList[label] and "Unattached" not in labelList[label]:
+        elif "Lexile" in label['name']:
             image_filename = f"LEXILE{labelNumber}.png"
             image = Image.open(os.path.join('static', 'LEXILE.png'))
-
-            if "Top to Bottom" in directionList[label]:
+            image = image.resize((26, 15))
+            if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
-                image = image.resize((35, 50))
-            elif "Bottom to Top" in directionList[label]:
+            elif "Bottom to Top" in label['direction']:
                 image = image.rotate(90, expand=True)
-                image = image.resize((35, 50))
-            elif "Horizontal" in directionList[label]:
-                image = image.resize((50, 35))
 
             file_path = os.path.join(temp_image_dir, image_filename)
             image.save(file_path)
             images.append(file_path)
 
         #Large AR label
-        elif "Large AR" in labelList[label] and "Unattached" not in labelList[label]:
+        elif "Large A/R" in label['name']:
             image_filename = f"LARGEAR{labelNumber}.png"
             image = Image.open(os.path.join('static', 'LARGEAR.png'))
-
-            if "Top to Bottom" in directionList[label]:
+            image = image.resize((25, 25))
+            if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
-                image = image.resize((50, 65))
-            elif "Bottom to Top" in directionList[label]:
+            elif "Bottom to Top" in label['direction']:
                 image = image.rotate(90, expand=True)
-                image = image.resize((50, 65))
-            elif "Horizontal" in directionList[label]:
-                image = image.resize((65, 50))
 
             file_path = os.path.join(temp_image_dir, image_filename)
             image.save(file_path)
             images.append(file_path)
-        
+
         labelNumber += 1
-        
 
     return images
     
 
+vertical_barcodes_coords = {
+    "1 (Standard Spine)": [299, 593], "2 (Standard A/R)": [299, 610], "5": [299, 648],
+    "G": [193, 590], "H": [272, 590], "C": [325, 590], "D": [404, 590],
+    "V": [404, 618], "U": [325, 618], "I": [272, 618], "T": [193, 618],
+    "E": [193, 648], "F": [272, 648], "A": [325, 648], "B": [404, 648],
+    "L": [58, 458], "M": [156, 458], "X": [156, 486], "W": [58, 486],
+    "J": [58, 514], "K": [156, 514], "3": [252, 522],
+    "P": [447, 458], "Q": [540, 458], "Z": [540, 486], "Y": [447, 486],
+    "N": [447, 514], "O": [540, 514], "4": [347, 523]
+}
 
+vertical_spine_ar_lexiles_coords = {
+    "1 (Standard Spine)": [299, 593], "2 (Standard A/R)": [299, 610], "5": [299, 656],
+    "G": [193, 590], "H": [272, 590], "C": [325, 590], "D": [404, 590],
+    "V": [404, 623], "U": [325, 623], "I": [272, 623], "T": [193, 623],
+    "E": [193, 657], "F": [272, 657], "A": [325, 657], "B": [404, 657],
+    "L": [58, 458], "M": [156, 458], "X": [156, 491], "W": [58, 491],
+    "J": [58, 523], "K": [156, 523], "3": [252, 531],
+    "P": [447, 458], "Q": [540, 458], "Z": [540, 491], "Y": [447, 491],
+    "N": [447, 523], "O": [540, 523], "4": [347, 532]
+}
 
+horizontal_barcodes_coords = {
+    "1 (Standard Spine)": [289, 593], "2 (Standard A/R)": [289, 608], "5": [289, 668],
+    "G": [194, 590], "H": [252, 590], "C": [325, 590], "D": [383, 590],
+    "V": [383, 628], "U": [325, 628], "I": [252, 628], "T": [194, 628],
+    "E": [194, 668], "F": [252, 668], "A": [325, 668], "B": [383, 668],
+    "L": [58, 458], "M": [136, 458], "X": [136, 494], "W": [58, 494],
+    "J": [58, 534], "K": [136, 534], "3": [234, 542],
+    "P": [447, 458], "Q": [520, 458], "Z": [520, 494], "Y": [447, 494],
+    "N": [447, 534], "O": [520, 534], "4": [349, 543]
+}
+
+horizontal_spine_ar_lexiles_coords = {
+    "1 (Standard Spine)": [293, 593], "2 (Standard A/R)": [293, 608], "5": [293, 668],
+    "G": [194, 590], "H": [261, 590], "C": [325, 590], "D": [392, 590],
+    "V": [392, 628], "U": [325, 628], "I": [261, 628], "T": [194, 628],
+    "E": [194, 668], "F": [261, 668], "A": [325, 668], "B": [392, 668],
+    "L": [58, 458], "M": [145, 458], "X": [145, 494], "W": [58, 494],
+    "J": [58, 534], "K": [145, 534], "3": [241, 542],
+    "P": [447, 458], "Q": [529, 458], "Z": [529, 494], "Y": [447, 494],
+    "N": [447, 534], "O": [529, 534], "4": [349, 543]
+}
+
+large_ar_coords = {
+    "1 (Standard Spine)": [293.5, 593], "2 (Standard A/R)": [293.5, 608], "5": [293.5, 656],
+    "G": [193, 590], "H": [262, 590], "C": [325, 590], "D": [394, 590],
+    "V": [394, 623], "U": [325, 623], "I": [262, 623], "T": [193, 623],
+    "E": [193, 657], "F": [262, 657], "A": [325, 657], "B": [394, 657],
+    "L": [57, 458], "M": [146, 458], "X": [146, 491], "W": [57, 491],
+    "J": [57, 525], "K": [146, 525], "3": [242, 531],
+    "P": [446, 458], "Q": [530, 458], "Z": [530, 491], "Y": [446, 491],
+    "N": [446, 525], "O": [530, 525], "4": [347, 533]
+}
