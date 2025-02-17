@@ -101,23 +101,20 @@
         </div>
         <div class="flex-centered notes-section">
             <div class="notes">
-                <h3>Notes:</h3>
+                <h3 class="notes-header">Notes:</h3>
                 <textarea class="notesText" name="notes"></textarea>
             </div>
             <div class="flex column images-download-section">
                 <div>
-                    <h4>Add additional image(s):</h4>
-                    <input type="file" name="imageInput" multiple>
-                </div>
-                <button id="download-button" type="submit">Download Template</button>
+                    <h4 class="upload-header">Add additional image(s):</h4>
+                    <input type="file" name="imageInput" id="fileInput" multiple accept="image/*">
+                </div> 
+                <button type="button" onclick="deleteFileInput()" name="deleteFileButton" class="deleteFileButton">Remove File(s)</button>
+                <button id="download-button" type="submit" class="download-button">Create Template</button>
             </div>
         </div>
     </form>
 <footer>
 </footer>
-
-<script>
-</script>
-
 </body>
 </html>
