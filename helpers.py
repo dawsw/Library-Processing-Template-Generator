@@ -8,11 +8,11 @@ from reportlab.platypus import Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from PIL import Image
 
+
 def generatePDF(labelList, locationList, directionList, notes, imageList):
 
     pdf_buffer = BytesIO()
     
-
     #create canvas for PDF (612.0px, 792.0px) or (8.5in, 11in)
     PAGE_WIDTH, PAGE_HEIGHT = LETTER
     canvas = Canvas(pdf_buffer, pagesize=LETTER)
@@ -36,7 +36,7 @@ def generatePDF(labelList, locationList, directionList, notes, imageList):
 
     #create a list of attached labels with {name, location, direction}
     for label in range(len(labelList)):
-        if "Unattached" not in labelList[label]:
+        if "Unattached" not in labelList[label] and "Unattached" not in locationList[label]:
             attachedLabels.append({'name': labelList[label], 'location': locationList[label], 'direction': directionList[label]})
 
 
@@ -191,7 +191,6 @@ def getLabelImageCoordinates(labels):
         #Horizontal Barcode
         elif 'Barcode' in label['name'] and 'Horizontal' in label['direction']:
             location = label['location']
-            print(location)
             if location in horizontal_barcodes_coords:
                 label_XY_List.append(horizontal_barcodes_coords[location])
 
@@ -201,8 +200,6 @@ def getLabelImageCoordinates(labels):
             if location in large_ar_coords:
                 label_XY_List.append(large_ar_coords[location])
         
-
-    print(label_XY_List)
     return label_XY_List
 
 
