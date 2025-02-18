@@ -280,7 +280,7 @@ def createLabelImages(attachedLabels):
         #Barcode label
         if "Barcode" in label['name']:
             image_filename = f"BARCODE{labelNumber}.png"
-            image = Image.open(os.path.join('static', 'BARCODE.png'))
+            image = Image.open(os.path.join('static/label-images', 'BARCODE.png'))
             image = image.resize((35, 15))
             if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
@@ -294,7 +294,7 @@ def createLabelImages(attachedLabels):
         #Spine label
         elif "Spine" in label['name']:
             image_filename = f"SPINE{labelNumber}.png"
-            image = Image.open(os.path.join('static', 'SPINE.png'))
+            image = Image.open(os.path.join('static/label-images', 'SPINE.png'))
             image = image.resize((26, 15))
             if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
@@ -308,7 +308,7 @@ def createLabelImages(attachedLabels):
         #Small AR label
         elif "Small A/R" in label['name']:
             image_filename = f"SMALLAR{labelNumber}.png"
-            image = Image.open(os.path.join('static', 'SMALLAR.png'))
+            image = Image.open(os.path.join('static/label-images', 'SMALLAR.png'))
             image = image.resize((26, 15))
             if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
@@ -322,7 +322,21 @@ def createLabelImages(attachedLabels):
         #Lexile label
         elif "Lexile" in label['name']:
             image_filename = f"LEXILE{labelNumber}.png"
-            image = Image.open(os.path.join('static', 'LEXILE.png'))
+            image = Image.open(os.path.join('static/label-images', 'LEXILE.png'))
+            image = image.resize((26, 15))
+            if "Top to Bottom" in label['direction']:
+                image = image.rotate(-90, expand=True)
+            elif "Bottom to Top" in label['direction']:
+                image = image.rotate(90, expand=True)
+
+            file_path = os.path.join(temp_image_dir, image_filename)
+            image.save(file_path)
+            images.append(file_path)
+
+        #Genre label
+        elif "Genre" in label['name']:
+            image_filename = f"GENRE{labelNumber}.png"
+            image = Image.open(os.path.join('static/label-images', 'GENRE.png'))
             image = image.resize((26, 15))
             if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
@@ -336,8 +350,22 @@ def createLabelImages(attachedLabels):
         #Large AR label
         elif "Large A/R" in label['name']:
             image_filename = f"LARGEAR{labelNumber}.png"
-            image = Image.open(os.path.join('static', 'LARGEAR.png'))
+            image = Image.open(os.path.join('static/label-images', 'LARGEAR.png'))
             image = image.resize((25, 25))
+            if "Top to Bottom" in label['direction']:
+                image = image.rotate(-90, expand=True)
+            elif "Bottom to Top" in label['direction']:
+                image = image.rotate(90, expand=True)
+
+            file_path = os.path.join(temp_image_dir, image_filename)
+            image.save(file_path)
+            images.append(file_path)
+
+        #Property label
+        elif "Property" in label['name']:
+            image_filename = f"PROPERTY{labelNumber}.png"
+            image = Image.open(os.path.join('static/label-images', 'PROPERTY.png'))
+            image = image.resize((40, 15))
             if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
             elif "Bottom to Top" in label['direction']:
