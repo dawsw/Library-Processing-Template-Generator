@@ -62,6 +62,8 @@ function addLabel() {
                 <option value="3">3</option>
                 <optgroup label="Back Flyleaf"></optgroup>
                 <option value="4">4</option>
+                <optgroup label="Unattached"></optgroup>
+                <option value="Unattached">Unattached</option>  
             </select>
         </td>
         <td class="item">
@@ -97,7 +99,6 @@ function deleteFileInput() {
     let input = document.getElementById('fileInput');
     input.value = '';
 }
-
 
  //reset selects and inputs when refreshed
 window.onload = function () {
