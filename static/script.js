@@ -21,14 +21,20 @@ function addLabel() {
                 <optgroup label="Lexile"></optgroup>
                 <option value="Lexile Label Attached">Lexile Label Attached</option>
                 <option value="Lexile Label Unattached">Lexile Label Unattached</option>
+                <optgroup label="Genre"></optgroup>
+                <option value="Genre Label Attached">Genre Label Attached</option>
+                <option value="Genre Label Unattached">Genre Label Unattached</option>
+                <optgroup label="Property"></optgroup>
+                <option value="Property Label Attached">Property Label Attached</option>
+                <option value="Property Label Unattached">Property Label Unattached</option>
             </select>
         </td>
         <td class="item">
             <select id="location" name="location">
                 <option value="select" selected disabled hidden>Select a location</option>
                 <optgroup label="Spine"></optgroup>
-                <option value="1 (Standard Spine)">1 (Standard Spine)</option>
-                <option value="2 (Standard A/R)">2 (Standard A/R)</option>
+                <option value="1 Standard Spine">1 - Standard Spine</option>
+                <option value="2 Standard A/R">2 - Standard A/R</option>
                 <option value="5">5</option>
                 <optgroup label="Front Cover"></optgroup>
                 <option value="A">A</option>
@@ -42,8 +48,8 @@ function addLabel() {
                 <option value="I">I</option>
                 <option value="H">H</option>
                 <option value="E">E</option>
-                <option value="T">V</option>
-                <option value="G">D</option>
+                <option value="T">T</option>
+                <option value="G">G</option>
                 <optgroup label="Inside Front Cover"></optgroup>
                 <option value="J">J</option>
                 <option value="W">W</option>
@@ -63,7 +69,9 @@ function addLabel() {
                 <optgroup label="Back Flyleaf"></optgroup>
                 <option value="4">4</option>
                 <optgroup label="Unattached"></optgroup>
-                <option value="Unattached">Unattached</option>  
+                <option value="Unattached">Unattached</option>
+                <optgroup label="Other"></optgroup>
+                <option value="See Notes">See Notes</option>   
             </select>
         </td>
         <td class="item">
@@ -100,7 +108,7 @@ function deleteFileInput() {
     input.value = '';
 }
 
- //reset selects and inputs when refreshed
+ /*reset selects and inputs when refreshed
 window.onload = function () {
     document.querySelectorAll("select").forEach(select => {
         select.selectedIndex = 0; 
@@ -108,4 +116,4 @@ window.onload = function () {
 
     const myForm = document.getElementById('fullForm');
         fullForm.reset(); 
-}; 
+};  */
