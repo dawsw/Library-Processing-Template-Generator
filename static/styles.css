@@ -35,12 +35,40 @@ body {
     font-size: 2rem;
 }
 
-.book-images {
-    padding: 50px 0 25px 0;
+.name-order-container {
+    width: 70%;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    background-color: #f1f1f1;
+    border: 1px solid #8f8f8f;
+    gap: 20%;
+    border-radius: 10px;
+}
+
+.name-order-container h3 {
+    font-size: 1.25rem;
+}
+
+.name-input {
+    border: 1px solid rgb(83, 83, 83);
+    border-radius: 3px;
+    margin-left: 5px;
+}
+
+.order-input {
+    width: 90px;
+    border: 1px solid rgb(83, 83, 83);
+    border-radius: 3px;
+    margin-left: 5px;
+
+}
+
+.book-image-container {
+    padding: 30px 0 25px 0;
  }
 
  
-.bookImage {
+.book-image {
    max-width: 75%;
 }
 
@@ -79,7 +107,7 @@ option {
     cursor: pointer;
 }
 
-.removeButton {
+.remove-button {
     margin: 10px;
     width: 25px;
 }
@@ -116,7 +144,9 @@ optgroup {
     border-radius: 25px;
     margin: 35px 0 65px 0;
     padding: 25px 0 50px 0;
-    gap: 10%;
+    width: 100%;
+    gap: 10%; 
+
 }
 
 .notes-header{
