@@ -10,7 +10,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from PIL import Image
 
 
-def generatePDF(labelList, locationList, directionList, notes, imageList):
+def generatePDF(libraryName, orderNumber, labelList, locationList, directionList, notes, imageList):
 
     pdf_buffer = BytesIO()
     
@@ -21,15 +21,48 @@ def generatePDF(labelList, locationList, directionList, notes, imageList):
     canvas.setFont("Helvetica", 20)
     canvas.setFillColorRGB(0.9, 0.9, 0.9)
     
-    #header border (x, y, width, height)
+    ### HEADER ### (x, y, width, height)
     canvas.setLineWidth(2) 
     canvas.rect(81, PAGE_HEIGHT - 60, PAGE_WIDTH - 162, 40)
 
     canvas.setFillColor(colors.black)
-    canvas.drawString(180, 10.35 * inch, "Library Processing Template")
 
-    #place book diagram image on PDF
-    canvas.drawImage("static/books_nonbold.png", (PAGE_WIDTH - 512) / 2, PAGE_HEIGHT - 340, width = PAGE_WIDTH - 100, height=250)
+    #add orderNumber to header if entered
+    if orderNumber != '':
+        canvas.drawString(160, 10.35 * inch, "#" + orderNumber + " - Processing Template")
+    else:
+        canvas.drawString(180, 10.35 * inch, "Library Processing Template")
+
+
+    ### LIBRARY NAME ###
+    if libraryName != '':
+        library_label = "Library:"
+
+        #get label and name widths
+        library_label_width = canvas.stringWidth(library_label, "Helvetica", 12)
+        libraryNameWidth = canvas.stringWidth(libraryName, "Helvetica", 10)
+        
+        #coordinates for label
+        x = (PAGE_WIDTH - library_label_width - libraryNameWidth) / 2
+        y = 9.86 * inch
+        padding = 5
+
+        canvas.setFont("Helvetica", 10)
+        canvas.drawString(x + library_label_width + padding, y, libraryName)
+
+        #create rectangle for "Library:"
+        canvas.setFillColor(colors.lightgrey)
+
+        canvas.rect(x - padding, y - padding, library_label_width + padding, 12 + padding, stroke=0, fill=1)
+
+        #place "Library:" on rectangle
+        canvas.setFont("Helvetica-Bold", 10)
+        canvas.setFillColor(colors.black)
+        canvas.drawString(x, y, library_label)
+
+
+    ### BOOK DIAGRAM ###
+    canvas.drawImage("static/books_nonbold.png", (PAGE_WIDTH - 512) / 2, PAGE_HEIGHT - 350, width = PAGE_WIDTH - 100, height=250)
 
 
     ### LABEL IMAGES ###
@@ -292,8 +325,7 @@ def createLabelImages(attachedLabels):
         #Barcode label
         if "Barcode" in label['name']:
             image_filename = f"BARCODE{labelNumber}.png"
-            image = Image.open(os.path.join('static/label-images', 'BARCODE.png'))
-            image = image.resize((35, 15))
+            image = Image.open(os.path.join('static/label-images', 'BARCODE.png')).resize((35, 15))
             if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
             elif "Bottom to Top" in label['direction']:
@@ -306,8 +338,7 @@ def createLabelImages(attachedLabels):
         #Spine label
         elif "Spine" in label['name']:
             image_filename = f"SPINE{labelNumber}.png"
-            image = Image.open(os.path.join('static/label-images', 'SPINE.png'))
-            image = image.resize((26, 15))
+            image = Image.open(os.path.join('static/label-images', 'SPINE.png')).resize((26, 15))
             if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
             elif "Bottom to Top" in label['direction']:
@@ -320,8 +351,7 @@ def createLabelImages(attachedLabels):
         #Small AR label
         elif "Small A/R" in label['name']:
             image_filename = f"SMALLAR{labelNumber}.png"
-            image = Image.open(os.path.join('static/label-images', 'SMALLAR.png'))
-            image = image.resize((26, 15))
+            image = Image.open(os.path.join('static/label-images', 'SMALLAR.png')).resize((26, 15))
             if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
             elif "Bottom to Top" in label['direction']:
@@ -334,8 +364,7 @@ def createLabelImages(attachedLabels):
         #Lexile label
         elif "Lexile" in label['name']:
             image_filename = f"LEXILE{labelNumber}.png"
-            image = Image.open(os.path.join('static/label-images', 'LEXILE.png'))
-            image = image.resize((26, 15))
+            image = Image.open(os.path.join('static/label-images', 'LEXILE.png')).resize((26, 15))
             if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
             elif "Bottom to Top" in label['direction']:
@@ -348,8 +377,7 @@ def createLabelImages(attachedLabels):
         #Genre label
         elif "Genre" in label['name']:
             image_filename = f"GENRE{labelNumber}.png"
-            image = Image.open(os.path.join('static/label-images', 'GENRE.png'))
-            image = image.resize((26, 15))
+            image = Image.open(os.path.join('static/label-images', 'GENRE.png')).resize((26, 15))
             if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
             elif "Bottom to Top" in label['direction']:
@@ -362,8 +390,7 @@ def createLabelImages(attachedLabels):
         #Large AR label
         elif "Large A/R" in label['name']:
             image_filename = f"LARGEAR{labelNumber}.png"
-            image = Image.open(os.path.join('static/label-images', 'LARGEAR.png'))
-            image = image.resize((25, 25))
+            image = Image.open(os.path.join('static/label-images', 'LARGEAR.png')).resize((25, 25))
             if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
             elif "Bottom to Top" in label['direction']:
@@ -376,8 +403,7 @@ def createLabelImages(attachedLabels):
         #Property label
         elif "Property" in label['name']:
             image_filename = f"PROPERTY{labelNumber}.png"
-            image = Image.open(os.path.join('static/label-images', 'PROPERTY.png'))
-            image = image.resize((40, 15))
+            image = Image.open(os.path.join('static/label-images', 'PROPERTY.png')).resize((40, 15))
             if "Top to Bottom" in label['direction']:
                 image = image.rotate(-90, expand=True)
             elif "Bottom to Top" in label['direction']:
