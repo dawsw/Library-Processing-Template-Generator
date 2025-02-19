@@ -1,4 +1,5 @@
 import os
+import json
 from io import BytesIO
 from reportlab.lib import colors
 from reportlab.pdfgen.canvas import Canvas
@@ -33,10 +34,11 @@ def generatePDF(labelList, locationList, directionList, notes, imageList):
 
     ### LABEL IMAGES ###
     attachedLabels = []
+    unattachedLabelLocations = ['Unattached', 'See Notes']
 
     #create a list of attached labels with {name, location, direction}
     for label in range(len(labelList)):
-        if "Unattached" not in labelList[label] and "Unattached" not in locationList[label]:
+        if "Unattached" not in labelList[label] and locationList[label] not in unattachedLabelLocations:
             attachedLabels.append({'name': labelList[label], 'location': locationList[label], 'direction': directionList[label]})
 
 
@@ -166,39 +168,49 @@ def generatePDF(labelList, locationList, directionList, notes, imageList):
 
 
 
-def getLabelImageCoordinates(labels):
+def getLabelImageCoordinates(attachedlabels):
+
+    with open("data/coordinates.json", "r") as file:
+        data = json.load(file)
+
     label_XY_List = []
 
-    for label in labels:      
-        #Vertical Spine/AR/Lexile
-        if ('Spine' in label['name'] or 'Lexile' in label['name'] or 'Small A/R' in label['name']) and 'Vertical' in label['direction']:
-            location = label['location']
-            if location in vertical_spine_ar_lexiles_coords:
-                label_XY_List.append(vertical_spine_ar_lexiles_coords[location])
+    for label in attachedlabels:
+        name = label['name']
+        location = label['location']
+        direction = label['direction']  
+           
+        #Spine/AR/Lexile/Genre
+        if 'Spine' in name or 'Lexile' in name or 'Small A/R' in name or 'Genre' in name:
+            #Vertical
+            if 'Vertical' in direction and location in data['vertical_spine_coords']:
+                label_XY_List.append(data['vertical_spine_coords'][location])
+            #Horizontal
+            elif 'Horizontal' in direction and location in data['horizontal_spine_coords']:
+                label_XY_List.append(data['horizontal_spine_coords'][location])
 
-        #Vertical Barcode
-        elif 'Barcode' in label['name'] and 'Vertical' in label['direction']:
-            location = label['location']
-            if location in vertical_barcodes_coords:
-                label_XY_List.append(vertical_barcodes_coords[location])
+        #Barcode
+        elif 'Barcode' in name:
+            #Vertical
+            if 'Vertical' in direction and location in data['vertical_barcodes_coords']:
+                label_XY_List.append(data['vertical_barcodes_coords'][location])
+            #Horizontal
+            elif 'Horizontal' in direction and location in data['horizontal_barcodes_coords']:
+                label_XY_List.append(data['horizontal_barcodes_coords'][location])
 
-        #Horizontal Spine/AR/Lexile
-        elif ('Spine' in label['name'] or 'Lexile' in label['name'] or 'Small A/R' in label['name']) and 'Horizontal' in label['direction']:
-            location = label['location']
-            if location in horizontal_spine_ar_lexiles_coords:
-                label_XY_List.append(horizontal_spine_ar_lexiles_coords[location])
-
-        #Horizontal Barcode
-        elif 'Barcode' in label['name'] and 'Horizontal' in label['direction']:
-            location = label['location']
-            if location in horizontal_barcodes_coords:
-                label_XY_List.append(horizontal_barcodes_coords[location])
+        #Property
+        elif 'Property' in name:
+            #Vertical
+            if 'Vertical' in direction and location in data['vertical_property_coords']:
+                label_XY_List.append(data['vertical_property_coords'][location])
+            #Horizontal
+            elif 'Horizontal' in direction and location in data['horizontal_property_coords']:
+                label_XY_List.append(data['horizontal_property_coords'][location])
 
         #Large AR
-        elif 'Large A/R' in label['name']:
-            location = label['location']
-            if location in large_ar_coords:
-                label_XY_List.append(large_ar_coords[location])
+        elif 'Large A/R' in name:
+            if location in data['large_ar_coords']:
+                label_XY_List.append(data['large_ar_coords'][location])
         
     return label_XY_List
 
@@ -378,59 +390,3 @@ def createLabelImages(attachedLabels):
         labelNumber += 1
 
     return images
-    
-
-vertical_barcodes_coords = {
-    "1 (Standard Spine)": [299, 593], "2 (Standard A/R)": [299, 610], "5": [299, 648],
-    "G": [193, 590], "H": [272, 590], "C": [325, 590], "D": [404, 590],
-    "V": [404, 618], "U": [325, 618], "I": [272, 618], "T": [193, 618],
-    "E": [193, 648], "F": [272, 648], "A": [325, 648], "B": [404, 648],
-    "L": [58, 458], "M": [156, 458], "X": [156, 486], "W": [58, 486],
-    "J": [58, 514], "K": [156, 514], "3": [252, 522],
-    "P": [447, 458], "Q": [540, 458], "Z": [540, 486], "Y": [447, 486],
-    "N": [447, 514], "O": [540, 514], "4": [347, 523]
-}
-
-vertical_spine_ar_lexiles_coords = {
-    "1 (Standard Spine)": [299, 593], "2 (Standard A/R)": [299, 610], "5": [299, 656],
-    "G": [193, 590], "H": [272, 590], "C": [325, 590], "D": [404, 590],
-    "V": [404, 623], "U": [325, 623], "I": [272, 623], "T": [193, 623],
-    "E": [193, 657], "F": [272, 657], "A": [325, 657], "B": [404, 657],
-    "L": [58, 458], "M": [156, 458], "X": [156, 491], "W": [58, 491],
-    "J": [58, 523], "K": [156, 523], "3": [252, 531],
-    "P": [447, 458], "Q": [540, 458], "Z": [540, 491], "Y": [447, 491],
-    "N": [447, 523], "O": [540, 523], "4": [347, 532]
-}
-
-horizontal_barcodes_coords = {
-    "1 (Standard Spine)": [289, 593], "2 (Standard A/R)": [289, 608], "5": [289, 668],
-    "G": [194, 590], "H": [252, 590], "C": [325, 590], "D": [383, 590],
-    "V": [383, 628], "U": [325, 628], "I": [252, 628], "T": [194, 628],
-    "E": [194, 668], "F": [252, 668], "A": [325, 668], "B": [383, 668],
-    "L": [58, 458], "M": [136, 458], "X": [136, 494], "W": [58, 494],
-    "J": [58, 534], "K": [136, 534], "3": [234, 542],
-    "P": [447, 458], "Q": [520, 458], "Z": [520, 494], "Y": [447, 494],
-    "N": [447, 534], "O": [520, 534], "4": [349, 543]
-}
-
-horizontal_spine_ar_lexiles_coords = {
-    "1 (Standard Spine)": [293, 593], "2 (Standard A/R)": [293, 608], "5": [293, 668],
-    "G": [194, 590], "H": [261, 590], "C": [325, 590], "D": [392, 590],
-    "V": [392, 628], "U": [325, 628], "I": [261, 628], "T": [194, 628],
-    "E": [194, 668], "F": [261, 668], "A": [325, 668], "B": [392, 668],
-    "L": [58, 458], "M": [145, 458], "X": [145, 494], "W": [58, 494],
-    "J": [58, 534], "K": [145, 534], "3": [241, 542],
-    "P": [447, 458], "Q": [529, 458], "Z": [529, 494], "Y": [447, 494],
-    "N": [447, 534], "O": [529, 534], "4": [349, 543]
-}
-
-large_ar_coords = {
-    "1 (Standard Spine)": [293.5, 593], "2 (Standard A/R)": [293.5, 608], "5": [293.5, 656],
-    "G": [193, 590], "H": [262, 590], "C": [325, 590], "D": [394, 590],
-    "V": [394, 623], "U": [325, 623], "I": [262, 623], "T": [193, 623],
-    "E": [193, 657], "F": [262, 657], "A": [325, 657], "B": [394, 657],
-    "L": [57, 458], "M": [146, 458], "X": [146, 491], "W": [57, 491],
-    "J": [57, 525], "K": [146, 525], "3": [242, 531],
-    "P": [446, 458], "Q": [530, 458], "Z": [530, 491], "Y": [446, 491],
-    "N": [446, 525], "O": [530, 525], "4": [347, 533]
-}
