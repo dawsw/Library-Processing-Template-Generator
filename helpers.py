@@ -10,7 +10,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from PIL import Image
 
 
-def generatePDF(libraryName, orderNumber, labelList, locationList, directionList, notes, imageList):
+def generatePDF(name, orderNumber, labelList, locationList, directionList, notes, imageList):
 
     pdf_buffer = BytesIO()
     
@@ -34,31 +34,31 @@ def generatePDF(libraryName, orderNumber, labelList, locationList, directionList
         canvas.drawString(180, 10.35 * inch, "Library Processing Template")
 
 
-    ### LIBRARY NAME ###
-    if libraryName != '':
-        library_label = "Library:"
+    ### NAME ###
+    if name != '':
+        name_label = "Name:"
 
         #get label and name widths
-        library_label_width = canvas.stringWidth(library_label, "Helvetica", 12)
-        libraryNameWidth = canvas.stringWidth(libraryName, "Helvetica", 10)
+        name_label_width = canvas.stringWidth(name_label, "Helvetica", 12)
+        nameWidth = canvas.stringWidth(name, "Helvetica", 10)
         
         #coordinates for label
-        x = (PAGE_WIDTH - library_label_width - libraryNameWidth) / 2
+        x = (PAGE_WIDTH - name_label_width - nameWidth) / 2
         y = 9.86 * inch
         padding = 5
 
         canvas.setFont("Helvetica", 10)
-        canvas.drawString(x + library_label_width + padding, y, libraryName)
+        canvas.drawString(x + name_label_width + padding, y, name)
 
         #create rectangle for "Library:"
         canvas.setFillColor(colors.lightgrey)
 
-        canvas.rect(x - padding, y - padding, library_label_width + padding, 12 + padding, stroke=0, fill=1)
+        canvas.rect(x - padding, y - padding, name_label_width + padding, 12 + padding, stroke=0, fill=1)
 
         #place "Library:" on rectangle
         canvas.setFont("Helvetica-Bold", 10)
         canvas.setFillColor(colors.black)
-        canvas.drawString(x, y, library_label)
+        canvas.drawString(x, y, name_label)
 
 
     ### BOOK DIAGRAM ###
