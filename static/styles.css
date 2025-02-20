@@ -112,6 +112,8 @@ option {
 .remove-button {
     margin: 10px;
     width: 25px;
+    cursor: pointer;
+    text-align: center;
 }
 
 optgroup {
@@ -134,10 +136,6 @@ optgroup {
 #addLabelButton:hover {
     background-color: #cccccc;
     transform: translateY(-1px);
-}
-
-.removeButton {
-    cursor: pointer;
 }
 
 .notes-section {
