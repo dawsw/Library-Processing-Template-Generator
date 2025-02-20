@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route("/", methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        libraryName = request.form.get("libraryName")
+        name = request.form.get("name")
         orderNumber = request.form.get("orderNumber")
         labelList = request.form.getlist("label")
         locationList = request.form.getlist("location")
@@ -23,7 +23,7 @@ def index():
             orderNumber = 'S' + orderNumber
 
         #create PDF
-        pdf = generatePDF(libraryName, orderNumber, labelList, locationList, directionList, notes, imageList)
+        pdf = generatePDF(name, orderNumber, labelList, locationList, directionList, notes, imageList)
 
         #if no orderNumber
         if orderNumber == '':
